@@ -1,1 +1,6 @@
 services:
+    nahoy_api_platform_consumption.load_class_metadata_listener:
+        class: Nahoy\ApiPlatform\ConsumptionBundle\Doctrine\LoadClassMetadataListener
+        arguments: ['@service_container']
+        tags:
+            - { name: doctrine.event_subscriber }

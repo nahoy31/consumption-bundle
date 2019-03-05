@@ -16,15 +16,6 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  * Class BaseConsumption
  *
  * @ORM\MappedSuperclass()
- * @ORM\Entity()
- * @ApiResource(
- *     collectionOperations={"get"},
- *     itemOperations={"get"},
- *     attributes={
- *         "normalization_context"={"groups"={"consumption"}},
- *         "denormalization_context"={"groups"={"consumption"}}
- *     }
- * )
  */
 class BaseConsumption
 {
@@ -34,41 +25,41 @@ class BaseConsumption
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Groups("consumption")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(name="username", type="string", length=255, nullable=false)
      * @Groups("consumption")
      * @ApiFilter(SearchFilter::class, strategy="exact")
      */
-    private $username;
+    protected $username;
 
     /**
      * @ORM\Column(name="method", type="string", length=40, nullable=true)
      * @Groups("consumption")
      * @ApiFilter(SearchFilter::class, strategy="exact")
      */
-    private $method;
+    protected $method;
 
     /**
      * @ORM\Column(name="uri", type="string", length=255, nullable=true)
      * @Groups("consumption")
      * @ApiFilter(SearchFilter::class, strategy="exact")
      */
-    private $uri;
+    protected $uri;
 
     /**
      * @ORM\Column(name="metric_name", type="string", length=255, nullable=false)
      * @Groups("consumption")
      * @ApiFilter(SearchFilter::class, strategy="exact")
      */
-    private $metricName;
+    protected $metricName;
 
     /**
      * @ORM\Column(name="last_value", type="integer", nullable=true)
      * @Groups("consumption")
      */
-    private $lastValue = null;
+    protected $lastValue = null;
 
     /**
      * @var \DateTime $updated
@@ -77,15 +68,13 @@ class BaseConsumption
      * @Groups("consumption")
      * @ApiFilter(DateFilter::class, properties={"date"})
      */
-    private $date;
+    protected $date;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", cascade={"persist"})
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      * @Groups("consumption")
      * @ApiFilter(SearchFilter::class, strategy="exact")
      */
-    private $user;
+    protected $user;
 
     /**
      * Get id

@@ -20,13 +20,6 @@ use Nahoy\ApiPlatform\ConsumptionBundle\Entity\Consumption;
 class PullCommand extends Command
 {
     /**
-     * {@inheritdoc}
-     *
-     * @todo change the command name
-     */
-    protected $commandName = 'app:consumption:pull';
-
-    /**
      * @var EntityManager
      */
     protected $em;
@@ -37,7 +30,7 @@ class PullCommand extends Command
     protected function configure()
     {
         $this
-            ->setName($this->commandName)
+            ->setName('nahoy:consumption:pull')
             ->setDescription('Pull consumption statitics')
         ;
     }
@@ -58,12 +51,10 @@ class PullCommand extends Command
         $users = $this->em->getRepository($userEntityName)->findAll();
 
         // iterate on users
-        /**
-         * @todo uses the id getter name from parameters
-         */
         foreach ($users as $user) {
-            $pattern = 'app~consumption~' . $user->getId() . '~*';
-            $result = $cacheClient->keys($pattern);
+            $getter  = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_id');
+            $pattern = 'app~consumption~' . $user->$getter() . '~*';
+            $result  = $cacheClient->keys($pattern);
 
             if (empty($result)) {
                 continue;
@@ -104,12 +95,11 @@ class PullCommand extends Command
         }
 
         // create the entity
-        /**
-         * @todo uses the username getter name from parameters
-         */
+        $getter = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+
         $consumption
             ->setUser($user)
-            ->setUsername($user->getUsername())
+            ->setUsername($user->$getter())
             ->setMetricName($metricName)
             ->setLastValue($consumption->getLastValue() + $cacheValue)
             ->setMethod($arr[5])
@@ -141,12 +131,11 @@ class PullCommand extends Command
         }
 
         // create the entity
-        /**
-         * @todo uses the username getter name from parameters
-         */
+        $getter = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+
         $consumption
             ->setUser($user)
-            ->setUsername($user->getUsername())
+            ->setUsername($user->$getter())
             ->setMetricName($metricName)
             ->setLastValue($consumption->getLastValue() + $cacheValue)
             ->setDate($date);
@@ -179,12 +168,11 @@ class PullCommand extends Command
         }
 
         // create the entity
-        /**
-         * @todo uses the username getter name from parameters
-         */
+        $getter = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+
         $consumption
             ->setUser($user)
-            ->setUsername($user->getUsername())
+            ->setUsername($user->$getter())
             ->setMetricName($metricName)
             ->setLastValue($consumption->getLastValue() + $cacheValue)
             ->setMethod($arr[5])
@@ -217,12 +205,11 @@ class PullCommand extends Command
         }
 
         // create the entity
-        /**
-         * @todo uses the username getter name from parameters
-         */
+        $getter = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+
         $consumption
             ->setUser($user)
-            ->setUsername($user->getUsername())
+            ->setUsername($user->$getter())
             ->setMetricName($metricName)
             ->setLastValue($consumption->getLastValue() + $cacheValue)
             ->setDate($date);
