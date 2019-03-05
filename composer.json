@@ -1,0 +1,12 @@
+{
+    "name": "nahoy31/consumption-bundle",
+    "description": "Consumption bundle for API Platform",
+    "type": "symfony-bundle",
+    "require": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Nahoy\\ApiPlatform\\ConsumptionBundle\\": ""
+        }
+    }
+}
