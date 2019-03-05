@@ -9,11 +9,11 @@ It works with:
 * a pusher
 * a puller
 
-## Requirements
+## Installation
+
+### Requirements
 
 * a Redis server
-
-## Installation
 
 ### Composer
 
@@ -127,9 +127,9 @@ See `src/Command/PullCommand.php`.
 | ----------- | ------------ | -------- | ----------------------- |
 | id          | integer      | yes      | 1                       |
 | user_id     | integer      | yes      | 1                       |
-| username    | string       | yes      | auto-selection          |
+| username    | string       | yes      | admin                   |
 | method      | string       | no       | GET                     |
-| uri         | string       | no       | /api/logs/{id}          |
+| uri         | string       | no       | /api/metrics/{id}       |
 | metric_name | string       | yes      | consumptionTotalByMonth |
-| last_value  | integer      | yes      | 20080                   |
+| last_value  | integer      | yes      | 15250                   |
 | date        | date (Y-m-d) | yes      | 2018-09-20              |
