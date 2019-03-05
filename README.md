@@ -13,8 +13,9 @@ It works with:
 
 ### Requirements
 
-* a Redis server
+* Symfony 3 or Symfony 4
 * API Platform (https://api-platform.com/)
+* Redis server
 * snc/SncRedisBundle (https://github.com/snc/SncRedisBundle)
 
 ### Composer
@@ -36,6 +37,20 @@ return [
     // ...
     Nahoy\ApiPlatform\ConsumptionBundle\ConsumptionBundle::class => ['all' => true],
 ];
+```
+
+Or in your `app/AppKernel.php` file:
+
+```php
+<?php
+
+public function registerBundles()
+{
+    $bundles = [
+        new Nahoy\ApiPlatform\ConsumptionBundle\ConsumptionBundle(),
+    ];
+    ...
+}
 ```
 
 ### Setting up your entities
@@ -73,6 +88,8 @@ class Consumption extends BaseConsumption
 }
 ```
 
+Adapt the class if necessary.
+
 And, update your database schema:
 
 ```bash
@@ -92,7 +109,8 @@ You can adapt the frequency.
 ## Full Configuration Options
 
 ```yaml
-# app/config/config.yml
+# config/packages/consumption.yaml
+# or app/config/config.yml
 
 consumption:
     api_pattern: ~/api/.+~
