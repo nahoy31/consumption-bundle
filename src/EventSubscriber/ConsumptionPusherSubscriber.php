@@ -36,17 +36,26 @@ class ConsumptionPusherSubscriber
     protected $router;
 
     /**
+     * @var array
+     */
+    protected $parameters = [];
+
+    /**
      * Constructor
      *
      * @param Client       $cacheClient
      * @param TokenStorage $tokenStorage
      * @param Router       $router
+     * @param string       $apiPattern
+     * @param string       $getterUserId
+     * @param string       $getterUserUsername
      */
-    public function __construct(Client $cacheClient, TokenStorage $tokenStorage, Router $router)
+    public function __construct(Client $cacheClient, TokenStorage $tokenStorage, Router $router, $apiPattern, $getterUserId, $getterUserUsername)
     {
         $this->cacheClient  = $cacheClient;
         $this->tokenStorage = $tokenStorage;
         $this->router       = $router;
+        $this->parameters   = compact('apiPattern', 'getterUserId', 'getterUserUsername');
     }
 
     /**
@@ -59,10 +68,7 @@ class ConsumptionPusherSubscriber
         $routeName  = $event->getRequest()->get('_route');
         $user       = $this->tokenStorage->getToken()->getUser();
 
-        /**
-         * @todo uses this pattern from parameters
-         */
-        if (!preg_match('~/api/.+~', $uri)) {
+        if (!preg_match($this->parameters['apiPattern'], $uri)) {
             return false;
         }
 
@@ -83,14 +89,13 @@ class ConsumptionPusherSubscriber
             $uri = str_replace('.{_format}', '', $uri);
         }
 
-        /**
-         * @todo uses the id getter name from parameters
-         * @todo uses the username getter name from parameters
-         */
+        $getterUserId       = $this->parameters['getterUserId'];
+        $getterUserUsername = $this->parameters['getterUserUsername'];
+
         $key = sprintf(
             'app~consumption~%s~%s~%s~%s~%s',
-            $user->getId(),
-            $user->getUsername(),
+            $user->$getterUserId(),
+            $user->$getterUserUsername(),
             date('Ymd'),
             $method,
             $uri

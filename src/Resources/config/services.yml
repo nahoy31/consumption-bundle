@@ -1,1 +1,11 @@
 services:
+    Nahoy\ApiPlatform\ConsumptionBundle\EventSubscriber\ConsumptionPusherSubscriber:
+        arguments:
+            - "@snc_redis.default"
+            - "@security.token_storage"
+            - "@router"
+            - "%nahoy_api_platform_consumption.api_pattern%"
+            - "%nahoy_api_platform_consumption.getter.user_id%"
+            - "%nahoy_api_platform_consumption.getter.user_username%"
+        tags:
+            - { name: kernel.event_listener, event: kernel.view, method: onKernelView, priority: 12 }
