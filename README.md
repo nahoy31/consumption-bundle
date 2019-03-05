@@ -155,3 +155,12 @@ See `src/Command/PullCommand.php`.
 | metric_name | string       | yes      | consumptionTotalByMonth |
 | last_value  | integer      | yes      | 15250                   |
 | date        | date (Y-m-d) | yes      | 2018-09-20              |
+
+The possible values of **metric_name** are:
+
+| Value                           | Description                                 |
+| ------------------------------- | ------------------------------------------- | 
+| consumptionCountByMethodByDay   | Nombre de requêtes par méthode et par jour  |
+| consumptionTotalByDay           | Nombre de requêtes total par jour           |
+| consumptionCountByMethodByMonth | Nombre de requêtes par méthodes et par mois |
+| consumptionTotalByMonth         | Nombre de requêtes total par mois           |
