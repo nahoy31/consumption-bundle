@@ -81,6 +81,7 @@ class PullCommand extends Command
 
         // find the entity or create it
         $consumptionEntityName = $this->container->getParameter('nahoy_api_platform_consumption.class.consumption');
+
         $consumption = $this->em->getRepository($consumptionEntityName)->findOneBy([
             'user'       => $user,
             'date'       => $date,
@@ -90,7 +91,7 @@ class PullCommand extends Command
         ]);
 
         if (empty($consumption)) {
-            $consumption = new Consumption();
+            $consumption = new $consumptionEntityName();
             $consumption->setLastValue(0);
         }
 
@@ -126,7 +127,7 @@ class PullCommand extends Command
         ]);
 
         if (empty($consumption)) {
-            $consumption = new Consumption();
+            $consumption = new $consumptionEntityName();
             $consumption->setLastValue(0);
         }
 
@@ -163,7 +164,7 @@ class PullCommand extends Command
         ]);
 
         if (empty($consumption)) {
-            $consumption = new Consumption();
+            $consumption = new $consumptionEntityName();
             $consumption->setLastValue(0);
         }
 
@@ -200,7 +201,7 @@ class PullCommand extends Command
         ]);
 
         if (empty($consumption)) {
-            $consumption = new Consumption();
+            $consumption = new $consumptionEntityName();
             $consumption->setLastValue(0);
         }
 

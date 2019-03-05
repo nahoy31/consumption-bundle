@@ -1,5 +1,9 @@
 # consumption-bundle
 
+## Requirements
+
+...
+
 ## Installation
 
 ### Composer
@@ -61,6 +65,16 @@ And, update your database schema:
 ```bash
 bin/console doctrine:schema:update
 ```
+
+### Running the cron jobs
+
+Add the following cron job on your system:
+
+```bash
+* * * * * YOUR_APP/bin/console --env=prod nahoy:consumption:pull > /dev/null
+```
+
+You can adapt the frequency.
 
 ## Full Configuration Options
 

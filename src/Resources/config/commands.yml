@@ -1,0 +1,4 @@
+services:
+    Nahoy\ApiPlatform\ConsumptionBundle\Command\:
+        resource: '../../../src/Command/*'
+        tags: ['console.command']
