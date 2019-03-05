@@ -11,15 +11,19 @@ It works with:
 
 ## Installation
 
-### Requirements
+### Requirements
 
 * a Redis server
+* API Platform (https://api-platform.com/)
+* snc/SncRedisBundle (https://github.com/snc/SncRedisBundle)
 
 ### Composer
 
 Installation with composer:
 
-...
+```bash
+composer require nahoy31/consumption-bundle
+```
 
 ### Enable the bundle
 
