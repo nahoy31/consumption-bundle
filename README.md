@@ -1,8 +1,17 @@
 # consumption-bundle
 
+## Introduction
+
+This module makes it easy to know the number of requests per request / user.
+
+It works with:
+
+* a pusher
+* a puller
+
 ## Requirements
 
-...
+* a Redis server
 
 ## Installation
 
@@ -16,8 +25,8 @@ Installation with composer:
 
 Next, enable this bundle in your `config/bundles.php` file:
 
-```
-#!php
+```php
+<?php
 
 return [
     // ...
@@ -90,3 +99,37 @@ consumption:
         user_id: getId
         user_username: getUsername
 ```
+
+## Pusher
+
+Everytime your API is requested, the following counter is incremented in your Redis server:
+
+    app~consumption~{USER_ID}~{USER_NAME}~{YYYYMMDD}~{METHOD}~{URI}
+
+Examples:
+
+    app~consumption~1~admin~20180923~GET~/api/metrics
+    app~consumption~1~admin~20180923~GET~/api/metrics/{id}
+
+See `src/EventSubscriber/ConsumptionPusherSubscriber.php`.
+
+## Puller
+
+Cron job executed on your system that will get the Redis counters, empty them and fill the  the MySQL table (see next chapter).
+
+See `src/Command/PullCommand.php`.
+
+## Entities
+
+### Consumption
+
+| Field       | Format       | Required | Example                 |
+| =========== | ============ | ======== | ======================= |
+| id          | integer      | yes      | 1                       |
+| user_id     | integer      | yes      | 1                       |
+| username    | string       | yes      | auto-selection          |
+| method      | string       | no       | GET                     |
+| uri         | string       | no       | /api/logs/{id}          |
+| metric_name | string       | yes      | consumptionTotalByMonth |
+| last_value  | integer      | yes      | 20080                   |
+| date        | date (Y-m-d) | yes      | 2018-09-20              |
