@@ -124,7 +124,7 @@ See `src/Command/PullCommand.php`.
 ### Consumption
 
 | Field       | Format       | Required | Example                 |
-| =========== | ============ | ======== | ======================= |
+| ----------- | ------------ | -------- | ----------------------- |
 | id          | integer      | yes      | 1                       |
 | user_id     | integer      | yes      | 1                       |
 | username    | string       | yes      | auto-selection          |
