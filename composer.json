@@ -1,9 +1,10 @@
 {
     "name": "nahoy31/consumption-bundle",
     "description": "Consumption bundle for API Platform",
-    "keywords": ["statistics", "call", "tracking", "rank"],
+    "keywords": ["api-platform", "symfony3", "symfony4", "statistics", "consumption", "api", "Manage topics"],
     "homepage": "https://github.com/nahoy31/consumption-bundle",
     "type": "symfony-bundle",
+    "license": "MIT",
     "authors": [
         {
             "name": "Yohann Frelicot",
