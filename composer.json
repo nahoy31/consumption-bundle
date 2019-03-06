@@ -1,7 +1,15 @@
 {
     "name": "nahoy31/consumption-bundle",
     "description": "Consumption bundle for API Platform",
+    "keywords": ["statistics", "call", "tracking", "rank"],
+    "homepage": "https://github.com/nahoy31/consumption-bundle",
     "type": "symfony-bundle",
+    "authors": [
+        {
+            "name": "Yohann Frelicot",
+            "email": "yfrelicot@gmail.com"
+        }
+    ],
     "require": {
     },
     "autoload": {
