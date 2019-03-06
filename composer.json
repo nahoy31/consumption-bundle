@@ -6,7 +6,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Nahoy\\ApiPlatform\\ConsumptionBundle\\": ""
+            "Nahoy\\ApiPlatform\\ConsumptionBundle\\": "src/"
         }
     }
 }
