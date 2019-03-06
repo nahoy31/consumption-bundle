@@ -190,7 +190,6 @@ Example:
 
 ```json
 {
-    ...
     "hydra:member": [
         {
             "@id": "/api/consumptions/4",
@@ -228,7 +227,6 @@ Example:
             "date": "2019-03-01T00:00:00+01:00",
             "user": "/api/users/1"
         }
-        ...
     ]
 }
 ```
@@ -245,7 +243,6 @@ Example:
 
 ```json
 {
-    ...
     "hydra:member": [
         {
             "@id": "/api/consumptions/9",
@@ -271,7 +268,6 @@ Example:
             "date": "2019-03-01T00:00:00+01:00",
             "user": "/api/users/1"
         } 
-        ...
     ]
 }
 ```
