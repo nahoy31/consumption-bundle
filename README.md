@@ -29,7 +29,7 @@ This bundle requires Symfony 3 or Symfony 4.
 Installation with composer:
 
 ```bash
-composer require nahoy31/consumption-bundle:dev-master
+composer require nahoy31/consumption-bundle:1.0.*
 ```
 
 ### Enable the bundle
