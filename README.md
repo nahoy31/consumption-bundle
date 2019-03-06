@@ -9,11 +9,17 @@ It works with:
 * a pusher
 * a puller
 
+## Compatibility with Symfony
+
+* Symfony `3`
+* Symfony `4`
+
 ## Installation
 
 ### Requirements
 
-* Symfony 3 or Symfony 4
+This bundle requires Symfony 3 or Symfony 4.
+
 * API Platform (https://api-platform.com/)
 * Redis server
 * snc/SncRedisBundle (https://github.com/snc/SncRedisBundle)
@@ -23,15 +29,16 @@ It works with:
 Installation with composer:
 
 ```bash
-composer require nahoy31/consumption-bundle
+composer require nahoy31/consumption-bundle:dev-master
 ```
 
 ### Enable the bundle
 
-Next, enable this bundle in your `config/bundles.php` file:
+For Symfony 4 - Enable this bundle in your `config/bundles.php` file:
 
 ```php
 <?php
+// config/bundles.php
 
 return [
     // ...
@@ -39,10 +46,11 @@ return [
 ];
 ```
 
-Or in your `app/AppKernel.php` file:
+For Symfony 3 - in your `app/AppKernel.php` file:
 
 ```php
 <?php
+// app/AppKernel.php
 
 public function registerBundles()
 {
@@ -96,6 +104,25 @@ And, update your database schema:
 bin/console doctrine:schema:update
 ```
 
+## Configuration
+
+For Symfony 4 - Configure the bundle in your `config/packages/consumption.yaml` file:
+
+```yaml
+# config/packages/consumption.yaml
+
+consumption:
+    api_pattern: ~/api/.+~ # the pattern of the URLs of your API. URLs that do not match this pattern will not have statistics.
+    class:
+        consumption: App\Entity\Consumption # your consumption entity
+        user: App\Entity\User               # your user entity 
+    getter:
+        user_id: getId             # your user ID getter method
+        user_username: getUsername # your username getter method
+```
+
+For Symfony 3 - Add the lines above in your `app/config/config.yml` file.
+
 ### Running the cron jobs
 
 Add the following cron job on your system:
@@ -105,22 +132,6 @@ Add the following cron job on your system:
 ```
 
 You can adapt the frequency.
-
-## Full Configuration Options
-
-```yaml
-# config/packages/consumption.yaml
-# or app/config/config.yml
-
-consumption:
-    api_pattern: ~/api/.+~
-    class:
-        consumption: App\Entity\Consumption
-        user: App\Entity\User
-    getter:
-        user_id: getId
-        user_username: getUsername
-```
 
 ## Pusher
 
