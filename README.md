@@ -2,12 +2,9 @@
 
 ## Introduction
 
-This module makes it easy to know the number of requests per request / user.
+This module makes it easy to store and retrieve the API usage per user.
 
-It works with:
-
-* a pusher
-* a puller
+It also provide a usage limits protection to your API.
 
 ## Compatibility with Symfony
 

@@ -8,7 +8,7 @@ For Symfony 4 - Configure the bundle in your `config/packages/consumption.yaml` 
 consumption:
     # enable the exception if the limit exceeded
     enabled_limit: true
-  
+    
     # the pattern of the URLs of your API. URLs that do not match this pattern will not have statistics.
     api_pattern: ~/api/.+~
     
@@ -19,20 +19,24 @@ consumption:
     
     class:
         consumption: App\Entity\Consumption # your consumption entity
-        user: App\Entity\User               # your user entity 
+        user: App\Entity\User               # your user entity
     
     # Exception thrown when the limit exceeded
     exception:
         status_code: 429
         message: 'API requests limit exceeded for %s.' # %s will be replace with client IP address
         custom_exception: ~ # The exception has to extend Nahoy\ApiPlatform\ConsumptionBundle\Exception\RateLimitExceededException
-  
-    # The symfony/property-access is used:
+    
+    # Specify how the bundle will find the following information:
+    # The component `symfony/property-access` and his property notation is used:
     # https://symfony.com/doc/current/components/property_access.html#usage
     getter:
-        user_id: id             # your user ID index
-        user_username: username # your username index
-        user_limit: plan.limit  # your user limit index
+        # the user ID index (the property will be read in your user entity)
+        user_id: id
+        # the username index (the property will be read in your user entity)
+        user_username: username
+        # the limit of requests to your API of the user index (the property will be read in your user entity)
+        user_limit: plan.limit
 ```
 
 For Symfony 3 - Add the lines above in your `app/config/config.yml` file.
