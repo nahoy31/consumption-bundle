@@ -39,4 +39,4 @@ For Symfony 3 - Add the lines above in your `app/config/config.yml` file.
 
 ---
 
-[Return to the index.](../../README.md)
+[Return to the index.](../../../README.md)

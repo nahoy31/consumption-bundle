@@ -16,11 +16,11 @@ It works with:
 
 ## Documentation
 
-* [Installation](Resources/doc/installation.md)
-* [Configuration](Resources/doc/configuration.md)
-* [Usage](Resources/doc/usage.md)
-    * [API statistics](Resources/doc/usage.md#api-statistics)
-    * [API limit](Resources/doc/usage.md#api-limit)
-* [How it works?](Resources/doc/how.md)
-    * [API statistics](Resources/doc/how.md#api-statistics)
-    * [API limit](Resources/doc/how.md#api-limit)
+* [Installation](src/Resources/doc/installation.md)
+* [Configuration](src/Resources/doc/configuration.md)
+* [Usage](src/Resources/doc/usage.md)
+    * [API statistics](src/Resources/doc/usage.md#api-statistics)
+    * [API limit](src/Resources/doc/usage.md#api-limit)
+* [How it works?](src/Resources/doc/how.md)
+    * [API statistics](src/Resources/doc/how.md#api-statistics)
+    * [API limit](src/Resources/doc/how.md#api-limit)
