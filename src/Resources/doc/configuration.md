@@ -28,14 +28,17 @@ consumption:
         custom_exception: ~ # The exception has to extend Nahoy\ApiPlatform\ConsumptionBundle\Exception\RateLimitExceededException
     
     # Specify how the bundle will find the following information:
-    # The component `symfony/property-access` and his property notation is used:
+    # The component `symfony/property-access` and his property notation are used:
     # https://symfony.com/doc/current/components/property_access.html#usage
     getter:
-        # the user ID index (the property will be read in your user entity)
+        # the user ID index
+        # the property will be read in your user entity
         user_id: id
-        # the username index (the property will be read in your user entity)
+        # the username index
+        # the property will be read in your user entity
         user_username: username
-        # the limit of requests to your API of the user index (the property will be read in your user entity)
+        # the limit of requests to your API of the user index
+        # the property will be read in your user entity
         user_limit: plan.limit
 ```
 
