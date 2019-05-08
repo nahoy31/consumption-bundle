@@ -6,7 +6,9 @@ For Symfony 4 - Configure the bundle in your `config/packages/consumption.yaml` 
 # config/packages/consumption.yaml
 
 consumption:
-    # enable the exception if the limit exceeded
+    # Enable the exception if the limit exceeded
+    # By default, the usage limit protection is enabled
+    # You can set `enabled_limit` to `false` disable this feature
     enabled_limit: true
     
     # the pattern of the URLs of your API. URLs that do not match this pattern will not have statistics.
