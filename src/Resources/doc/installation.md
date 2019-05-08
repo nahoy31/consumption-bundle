@@ -5,8 +5,6 @@
 This bundle requires Symfony 3 or Symfony 4.
 
 * API Platform (https://api-platform.com/)
-* Redis server
-* snc/SncRedisBundle (https://github.com/snc/SncRedisBundle)
 
 ### Composer
 
