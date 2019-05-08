@@ -4,6 +4,9 @@ namespace Nahoy\ApiPlatform\ConsumptionBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\HttpFoundation\Response;
+
+use Nahoy\ApiPlatform\ConsumptionBundle\Exception\LimitExceededException;
 
 /**
  * This is the class that validates and merges configuration from your app/config files
@@ -22,10 +25,14 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->booleanNode('enabled_limit')->defaultTrue()->end()
                 ->scalarNode('api_pattern')
                     ->defaultValue('~/api/.+~')
                     ->isRequired()
                     ->cannotBeEmpty()
+                ->end()
+                ->scalarNode('cache')
+                    ->defaultNull()
                 ->end()
                 ->arrayNode('class')
                     ->isRequired()
@@ -37,6 +44,14 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('user')
                             ->isRequired()
                             ->cannotBeEmpty()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('routes_with_limit')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('method')->end()
+                            ->scalarNode('pattern')->end()
                         ->end()
                     ->end()
                 ->end()
@@ -52,6 +67,38 @@ class Configuration implements ConfigurationInterface
                             ->defaultValue('username')
                             ->isRequired()
                             ->cannotBeEmpty()
+                        ->end()
+                        ->scalarNode('user_limit')
+                            ->defaultNull()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('exception')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->integerNode('status_code')
+                            ->defaultValue(Response::HTTP_TOO_MANY_REQUESTS)
+                            ->validate()
+                            ->ifNotInArray(array_keys(Response::$statusTexts))
+                                ->thenInvalid('Invalid status code "%s"')
+                            ->end()
+                        ->end()
+                        ->scalarNode('message')->cannotBeEmpty()->defaultValue('API rate limit exceeded for %s.')->end()
+                        ->scalarNode('custom_exception')
+                            ->cannotBeEmpty()
+                            ->defaultNull()
+                            ->validate()
+                            ->ifTrue(function ($v) {
+                                if (!class_exists($v)) {
+                                    return true;
+                                }
+                                if (!is_subclass_of($v, RateLimitExceededException::class)) {
+                                    return true;
+                                }
+                                return false;
+                            })
+                                ->thenInvalid('The class %s does not exist or not extend "Nahoy\ApiPlatform\ConsumptionBundle\Exception\LimitExceededException" class.')
+                            ->end()
                         ->end()
                     ->end()
                 ->end()

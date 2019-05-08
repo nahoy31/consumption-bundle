@@ -10,8 +10,12 @@ use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
-use Predis\Client;
+use Psr\Cache\CacheItemPoolInterface;
+
+use Nahoy\ApiPlatform\ConsumptionBundle\Service\CacheService;
 
 /**
  * Class ConsumptionPusherSubscriber
@@ -21,9 +25,9 @@ use Predis\Client;
 class ConsumptionPusherSubscriber
 {
     /**
-     * @var Client
+     * @var CacheItemPoolInterface
      */
-    protected $cacheClient;
+    private $cacheItemPool;
 
     /**
      * @var TokenStorage
@@ -43,19 +47,26 @@ class ConsumptionPusherSubscriber
     /**
      * Constructor
      *
-     * @param Client       $cacheClient
+     * @param CacheService $cacheService
      * @param TokenStorage $tokenStorage
      * @param Router       $router
      * @param string       $apiPattern
      * @param string       $getterUserId
      * @param string       $getterUserUsername
      */
-    public function __construct(Client $cacheClient, TokenStorage $tokenStorage, Router $router, $apiPattern, $getterUserId, $getterUserUsername)
+    public function __construct(
+        CacheService $cacheService,
+        TokenStorage $tokenStorage,
+        Router $router,
+        $apiPattern,
+        $getterUserId,
+        $getterUserUsername
+    )
     {
-        $this->cacheClient  = $cacheClient;
-        $this->tokenStorage = $tokenStorage;
-        $this->router       = $router;
-        $this->parameters   = compact('apiPattern', 'getterUserId', 'getterUserUsername');
+        $this->cacheItemPool   = $cacheService->getCacheItemPool();
+        $this->tokenStorage    = $tokenStorage;
+        $this->router          = $router;
+        $this->parameters      = compact('apiPattern', 'getterUserId', 'getterUserUsername');
     }
 
     /**
@@ -63,10 +74,12 @@ class ConsumptionPusherSubscriber
      */
     public function onKernelView(GetResponseForControllerResultEvent $event)
     {
-        $method     = $event->getRequest()->getMethod();
-        $uri        = $event->getRequest()->getRequestUri();
-        $routeName  = $event->getRequest()->get('_route');
-        $user       = $this->tokenStorage->getToken()->getUser();
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $method           = $event->getRequest()->getMethod();
+        $uri              = $event->getRequest()->getRequestUri();
+        $routeName        = $event->getRequest()->get('_route');
+        $user             = $this->tokenStorage->getToken()->getUser();
+        $request          = $event->getRequest();
 
         if (!preg_match($this->parameters['apiPattern'], $uri)) {
             return false;
@@ -91,16 +104,34 @@ class ConsumptionPusherSubscriber
 
         $getterUserId       = $this->parameters['getterUserId'];
         $getterUserUsername = $this->parameters['getterUserUsername'];
+        $userId             = $propertyAccessor->getValue($user, $getterUserId);
+        $username           = $propertyAccessor->getValue($user, $getterUserUsername);
 
         $key = sprintf(
             'app~consumption~%s~%s~%s~%s~%s',
-            $user->$getterUserId(),
-            $user->$getterUserUsername(),
+            $userId,
+            $username,
             date('Ymd'),
             $method,
-            $uri
+            urlencode($uri)
         );
 
-        $this->cacheClient->incr($key);
+        //> save the key in the keys list
+        $cacheItem = $this->cacheItemPool->getItem('app~consumption~keys~' . $userId);
+
+        $value     = $cacheItem->get();
+        $value[]   = $key;
+        $value     = array_unique($value);
+
+        $cacheItem->set($value);
+
+        $this->cacheItemPool->save($cacheItem);
+        //< save the key in the keys list
+
+        $cacheItem = $this->cacheItemPool->getItem($key);
+        $value     = $cacheItem->get() + 1;
+        $cacheItem->set($value);
+
+        $this->cacheItemPool->save($cacheItem);
     }
 }

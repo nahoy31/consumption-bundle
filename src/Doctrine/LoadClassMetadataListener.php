@@ -9,6 +9,11 @@ use Doctrine\Common\Persistence\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Class LoadClassMetadataListener
+ *
+ * @author Yohann Frelicot <yfrelicot@gmail.com>
+ */
 class LoadClassMetadataListener implements EventSubscriber
 {
     /**
@@ -33,8 +38,7 @@ class LoadClassMetadataListener implements EventSubscriber
      */
     public function __construct(ContainerInterface $container)
     {
-        $this->container = $container;
-
+        $this->container   = $container;
         $this->consumption = $container->getParameter('nahoy_api_platform_consumption.class.consumption');
         $this->user        = $container->getParameter('nahoy_api_platform_consumption.class.user');
     }
