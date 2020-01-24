@@ -5,10 +5,11 @@ namespace Nahoy\ApiPlatform\ConsumptionBundle\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 use Doctrine\ORM\EntityManager;
 
-use Predis\Client;
+use Psr\Cache\CacheItemPoolInterface;
 
 use Nahoy\ApiPlatform\ConsumptionBundle\Entity\Consumption;
 
@@ -19,6 +20,11 @@ use Nahoy\ApiPlatform\ConsumptionBundle\Entity\Consumption;
  */
 class PullCommand extends Command
 {
+    /**
+     * @var CacheItemPoolInterface
+     */
+    private $cacheItemPool;
+
     /**
      * @var EntityManager
      */
@@ -40,11 +46,11 @@ class PullCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->output    = $output;
-        $this->container = $this->getApplication()->getKernel()->getContainer();
-        $this->em        = $this->container->get('doctrine')->getManager();
-        /** @var Client $cacheClient */
-        $cacheClient     = $this->container->get('snc_redis.default');
+        $this->output        = $output;
+        $this->container     = $this->getApplication()->getKernel()->getContainer();
+        $this->em            = $this->container->get('doctrine')->getManager();
+        $this->cacheItemPool = $this->container->get('nahoy_api_platform_consumption.service.cache')->getCacheItemPool();
+        $propertyAccessor    = PropertyAccess::createPropertyAccessor();
 
         // get Users
         $userEntityName = $this->container->getParameter('nahoy_api_platform_consumption.class.user');
@@ -52,32 +58,38 @@ class PullCommand extends Command
 
         // iterate on users
         foreach ($users as $user) {
-            $getter  = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_id');
-            $pattern = 'app~consumption~' . $user->$getter() . '~*';
-            $result  = $cacheClient->keys($pattern);
+            $getter = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_id');
+            $userId = $propertyAccessor->getValue($user, $getter);
 
-            if (empty($result)) {
+            $cacheItem = $this->cacheItemPool->getItem('app~consumption~keys~' . $userId);
+
+            $keysList  = $cacheItem->get();
+
+            if (empty($keysList)) {
                 continue;
             }
 
-            foreach ($result as $cacheKey) {
-                $cacheValue = $cacheClient->get($cacheKey);
+            foreach ($keysList as $cacheKey) {
+                $cacheItem  = $this->cacheItemPool->getItem($cacheKey);
+                $cacheValue = $cacheItem->get();
 
                 $this->processMetricConsumptionCountByMethodByDay($user, $cacheKey, $cacheValue);
                 $this->processMetricConsumptionTotalByDay($user, $cacheKey, $cacheValue);
                 $this->processMetricConsumptionCountByMethodByMonth($user, $cacheKey, $cacheValue);
                 $this->processMetricConsumptionTotalByMonth($user, $cacheKey, $cacheValue);
 
-                $cacheClient->del($cacheKey);
+                $this->cacheItemPool->deleteItem($cacheKey);
             }
         }
     }
 
     protected function processMetricConsumptionCountByMethodByDay($user, $cacheKey, $cacheValue)
     {
-        $metricName = 'consumptionCountByMethodByDay';
-        $arr        = explode('~', $cacheKey);
-        $date       = \DateTime::createFromFormat('Ymd', $arr[4]);
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $metricName       = 'consumptionCountByMethodByDay';
+        $arr              = explode('~', $cacheKey);
+        $date             = \DateTime::createFromFormat('Ymd', $arr[4]);
+        $uri              = urldecode($arr[6]);
 
         // find the entity or create it
         $consumptionEntityName = $this->container->getParameter('nahoy_api_platform_consumption.class.consumption');
@@ -86,7 +98,7 @@ class PullCommand extends Command
             'user'       => $user,
             'date'       => $date,
             'method'     => $arr[5],
-            'uri'        => $arr[6],
+            'uri'        => $uri,
             'metricName' => $metricName,
         ]);
 
@@ -96,15 +108,16 @@ class PullCommand extends Command
         }
 
         // create the entity
-        $getter = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+        $getter   = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+        $username = $propertyAccessor->getValue($user, $getter);
 
         $consumption
             ->setUser($user)
-            ->setUsername($user->$getter())
+            ->setUsername($username)
             ->setMetricName($metricName)
             ->setLastValue($consumption->getLastValue() + $cacheValue)
             ->setMethod($arr[5])
-            ->setUri($arr[6])
+            ->setUri($uri)
             ->setDate($date);
         ;
 
@@ -114,9 +127,10 @@ class PullCommand extends Command
 
     protected function processMetricConsumptionTotalByDay($user, $cacheKey, $cacheValue)
     {
-        $metricName = 'consumptionTotalByDay';
-        $arr        = explode('~', $cacheKey);
-        $date       = \DateTime::createFromFormat('Ymd', $arr[4]);
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $metricName       = 'consumptionTotalByDay';
+        $arr              = explode('~', $cacheKey);
+        $date             = \DateTime::createFromFormat('Ymd', $arr[4]);
 
         // find the entity or create it
         $consumptionEntityName = $this->container->getParameter('nahoy_api_platform_consumption.class.consumption');
@@ -132,11 +146,12 @@ class PullCommand extends Command
         }
 
         // create the entity
-        $getter = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+        $getter   = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+        $username = $propertyAccessor->getValue($user, $getter);
 
         $consumption
             ->setUser($user)
-            ->setUsername($user->$getter())
+            ->setUsername($username)
             ->setMetricName($metricName)
             ->setLastValue($consumption->getLastValue() + $cacheValue)
             ->setDate($date);
@@ -148,10 +163,12 @@ class PullCommand extends Command
 
     protected function processMetricConsumptionCountByMethodByMonth($user, $cacheKey, $cacheValue)
     {
-        $metricName = 'consumptionCountByMethodByMonth';
-        $arr        = explode('~', $cacheKey);
-        $date       = \DateTime::createFromFormat('Ymd', $arr[4]);
-        $date       = $date->setDate($date->format('Y'), $date->format('m'), '1');
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $metricName       = 'consumptionCountByMethodByMonth';
+        $arr              = explode('~', $cacheKey);
+        $date             = \DateTime::createFromFormat('Ymd', $arr[4]);
+        $date             = $date->setDate($date->format('Y'), $date->format('m'), '1');
+        $uri              = urldecode($arr[6]);
 
         // find the entity or create it
         $consumptionEntityName = $this->container->getParameter('nahoy_api_platform_consumption.class.consumption');
@@ -159,7 +176,7 @@ class PullCommand extends Command
             'user'       => $user,
             'date'       => $date,
             'method'     => $arr[5],
-            'uri'        => $arr[6],
+            'uri'        => $uri,
             'metricName' => $metricName,
         ]);
 
@@ -169,15 +186,16 @@ class PullCommand extends Command
         }
 
         // create the entity
-        $getter = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+        $getter   = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+        $username = $propertyAccessor->getValue($user, $getter);
 
         $consumption
             ->setUser($user)
-            ->setUsername($user->$getter())
+            ->setUsername($username)
             ->setMetricName($metricName)
             ->setLastValue($consumption->getLastValue() + $cacheValue)
             ->setMethod($arr[5])
-            ->setUri($arr[6])
+            ->setUri($uri)
             ->setDate($date);
         ;
 
@@ -187,10 +205,11 @@ class PullCommand extends Command
 
     protected function processMetricConsumptionTotalByMonth($user, $cacheKey, $cacheValue)
     {
-        $metricName = 'consumptionTotalByMonth';
-        $arr        = explode('~', $cacheKey);
-        $date       = \DateTime::createFromFormat('Ymd', $arr[4]);
-        $date       = $date->setDate($date->format('Y'), $date->format('m'), '1');
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $metricName       = 'consumptionTotalByMonth';
+        $arr              = explode('~', $cacheKey);
+        $date             = \DateTime::createFromFormat('Ymd', $arr[4]);
+        $date             = $date->setDate($date->format('Y'), $date->format('m'), '1');
 
         // find the entity or create it
         $consumptionEntityName = $this->container->getParameter('nahoy_api_platform_consumption.class.consumption');
@@ -206,11 +225,12 @@ class PullCommand extends Command
         }
 
         // create the entity
-        $getter = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+        $getter   = $this->container->getParameter('nahoy_api_platform_consumption.getter.user_username');
+        $username = $propertyAccessor->getValue($user, $getter);
 
         $consumption
             ->setUser($user)
-            ->setUsername($user->$getter())
+            ->setUsername($username)
             ->setMetricName($metricName)
             ->setLastValue($consumption->getLastValue() + $cacheValue)
             ->setDate($date);

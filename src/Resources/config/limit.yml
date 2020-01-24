@@ -1,17 +1,12 @@
 services:
-    Nahoy\ApiPlatform\ConsumptionBundle\EventSubscriber\ConsumptionPusherSubscriber:
+    Nahoy\ApiPlatform\ConsumptionBundle\EventSubscriber\ConsumptionLimitSubscriber:
         arguments:
             - "@nahoy_api_platform_consumption.service.cache"
             - "@security.token_storage"
-            - "@router"
+            - "%nahoy_api_platform_consumption.routes_with_limit%"
+            - "%nahoy_api_platform_consumption.exception%"
             - "%nahoy_api_platform_consumption.api_pattern%"
             - "%nahoy_api_platform_consumption.getter.user_id%"
             - "%nahoy_api_platform_consumption.getter.user_username%"
         tags:
             - { name: kernel.event_listener, event: kernel.view, method: onKernelView, priority: 12 }
-
-    nahoy_api_platform_consumption.service.cache:
-        class: Nahoy\ApiPlatform\ConsumptionBundle\Service\CacheService
-        arguments:
-            - ~
-        public: true
