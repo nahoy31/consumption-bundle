@@ -2,7 +2,7 @@ services:
     Nahoy\ApiPlatform\ConsumptionBundle\EventSubscriber\ConsumptionPusherSubscriber:
         arguments:
             - "@nahoy_api_platform_consumption.service.cache"
-            - "@security.token_storage"
+            - "@security.untracked_token_storage"
             - "@router"
             - "%nahoy_api_platform_consumption.api_pattern%"
             - "%nahoy_api_platform_consumption.getter.user_id%"

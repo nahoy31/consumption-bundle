@@ -2,7 +2,7 @@ services:
     Nahoy\ApiPlatform\ConsumptionBundle\EventSubscriber\ConsumptionLimitSubscriber:
         arguments:
             - "@nahoy_api_platform_consumption.service.cache"
-            - "@security.token_storage"
+            - "@security.untracked_token_storage"
             - "%nahoy_api_platform_consumption.routes_with_limit%"
             - "%nahoy_api_platform_consumption.exception%"
             - "%nahoy_api_platform_consumption.api_pattern%"
